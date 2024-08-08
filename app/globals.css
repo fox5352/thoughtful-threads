@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --fg-color: #0c0c0c;
+  --bg-color: gainsboro;
+
+  --ac-color: cadetblue;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg-color: #fff;
+    --bg-color: #0c0c0c;
+    
+
+    --ac-color: crimson;
+  }
+}
+
+body {
+  color: rgb(var(--fg-color));
+  background-color: var(--bg-color);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
