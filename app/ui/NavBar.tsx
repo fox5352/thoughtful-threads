@@ -89,12 +89,10 @@ export default function NavBar() {
 
                             {/* {
                               session.status === "authenticated"?
-                                <button onClick={logout}>
-                                  <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
-                                </button>
+                                <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
                               :
                               } */}
-                              <Login />
+                              <SidebarLink link={{href:"login", icon: (<IconDoorExit />), label: "log in"}} />
                         </div>
                     </div>
                     <div>
