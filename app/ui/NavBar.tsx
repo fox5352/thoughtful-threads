@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 
 import Link from "next/link";
 import Image from "next/image";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 export const Logo = () => {
   return (
@@ -66,14 +67,16 @@ export default function NavBar() {
         icon: (<IconBookmarksFilled />),
       },
     ];
-    const session = {};
+    const session = useSession();
     
     const [open, setOpen] = useState(false);
 
-    const logout = async() => {
+    const logout = () => {
+      signOut()
     }
 
     const login = () => {
+      signIn();
     }
 
     return (
@@ -87,16 +90,20 @@ export default function NavBar() {
                                 <SidebarLink key={idx} link={link} />
                             ))}
 
-                            {/* {
+                            {
                               session.status === "authenticated"?
-                                <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
+                                <button onClick={logout}>
+                                  <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
+                                </button>
                               :
-                              } */}
-                              <SidebarLink link={{href:"login", icon: (<IconDoorExit />), label: "log in"}} />
+                                <button onClick={login}>
+                                  <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log in"}} />
+                                </button>
+                              }
                         </div>
                     </div>
                     <div>
-                      {/* {session.status == "authenticated" && <UserLink href={session.data.user?.name || "Profile"} label="Profile" icon={session.data.user?.image || ""} />} */}
+                      {session.status == "authenticated" && <UserLink href={session.data.user?.name || "Profile"} label="Profile" icon={session.data.user?.image || ""} />}
                     </div>
                 </SidebarBody>
             </Sidebar>
