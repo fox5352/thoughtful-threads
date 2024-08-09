@@ -5,6 +5,7 @@ import "@/app/globals.css";
 import NavBar from "@/app/ui/NavBar";
 import AuthProvider from "./lib/AuthProvider";
 import { getServerSession } from "next-auth";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
 export const metadata: Metadata = {
   title: "Thoughtfull Threads",
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions); 
 
   return (
     <html lang="en">
