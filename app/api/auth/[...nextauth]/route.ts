@@ -1,6 +1,7 @@
 import NextAuth from "next-auth/next";
 import { NextAuthOptions, Session } from "next-auth";
 import Github from "next-auth/providers/github";
+import { createUser, getUserByEmail } from "@/model/user.model";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -13,15 +14,25 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }) {
-      // console.log("user", user);
-      // console.log("account", account);
-      // console.log("profile", profile);
+    async signIn({ user, account }) {
       
-      return true;
+      if(user.email&& user.name){
+        const userExists = await getUserByEmail(user.email);
+        // console.log("account", account?.provider); give the provider for later intergation
+
+        if(!userExists){
+          const image = user.image? user?.image : 'undefined';
+          const res = await createUser(user.name, user.email,image );
+
+          return res;
+        }
+      }
+
+      return false;
     },
     async jwt({ token, user, account}) {
-      if (account && user) {
+      if (account && user.email) {
+        
         // This condition will be true only on sign in
         // Fetch user ID from your database here
         // For example:
@@ -29,7 +40,7 @@ export const authOptions: NextAuthOptions = {
         // token.userId = dbUser.id;
         
         // For demonstration, let's assume we got the ID:
-        token.userId = "123456";        
+        token.userId = (await getUserByEmail(user.email))?.id;
       }
       return token;
     },

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/app/ui/Sidebar";
-import { IconBook, IconBookmarksFilled, IconSquarePlus, IconDeviceFloppy, IconDoorExit, IconDoorEnter } from "@tabler/icons-react";
+import { IconBook, IconBookmarksFilled, IconSquarePlus, IconDeviceFloppy, IconDoorExit, IconDoorEnter, IconUserCircle } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 
 import Link from "next/link";
@@ -26,20 +26,14 @@ export const Logo = () => {
   );
 };
 
-const UserLink = ({href, label, icon}: {href: string, label: string, icon: string}) => {  
+const UserLink = ({href, label, icon}: {href: string, label: string, icon: string}) => {
+  const profilePic  = icon === "undefined" ? <IconUserCircle />: <Image src={icon} className="h-7 w-7 flex-shrink-0 rounded-full" width={50} height={50} alt="Avatar"/>
 
   return (
     <SidebarLink link={{
       href, 
       label, 
-      icon: (
-        <Image
-        src={icon}
-        className="h-7 w-7 flex-shrink-0 rounded-full"
-        width={50}
-        height={50}
-        alt="Avatar"/>
-      )
+      icon: profilePic
     }} />
   )
 }
@@ -68,6 +62,7 @@ export default function NavBar() {
       },
     ];
     const session = useSession();
+
     
     const [open, setOpen] = useState(false);
 
@@ -77,7 +72,7 @@ export default function NavBar() {
 
     const login = () => {
       signIn();
-    }
+    }    
 
     return (
         <nav className="fixed z-50 md:h-full">
