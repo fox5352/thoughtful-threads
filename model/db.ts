@@ -6,11 +6,11 @@ export interface Database {
     users: UserTabel;
 };
 
-console.log(process.env.DB_URL!);
-
 const dialect = new PostgresDialect({
     pool: new Pool({
         connectionString: process.env.DB_URL!,
+        // TODO: remove comment below when in prod 
+        // ssl: true,
         max: 4
     })
 })

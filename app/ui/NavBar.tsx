@@ -47,7 +47,7 @@ export default function NavBar() {
       },
       {
         label: "Create Post",
-        href: "#",
+        href: "/create",
         icon: (<IconSquarePlus />),
       },
       {
@@ -56,7 +56,7 @@ export default function NavBar() {
         icon: (<IconDeviceFloppy />),
       },
       {
-        label: "BookMark",
+        label: "Bookmark",
         href: "#",
         icon: (<IconBookmarksFilled />),
       },
@@ -75,7 +75,8 @@ export default function NavBar() {
     }    
 
     return (
-        <nav className="fixed z-50 md:h-full">
+        <div className="pr-[57px] md:pr-[60px]">
+          <nav className="fixed z-50 md:h-full">
             <Sidebar open={open} setOpen={setOpen}>
                 <SidebarBody className="justify-between gap-10">
                     <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
@@ -102,6 +103,7 @@ export default function NavBar() {
                     </div>
                 </SidebarBody>
             </Sidebar>
-        </nav>
+          </nav>
+        </div>
     );
   }

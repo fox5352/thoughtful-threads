@@ -17,7 +17,7 @@ export default async function RootLayout({children}: Readonly<{children: React.R
 
   return (
     <html lang="en">
-      <body className={`max-w-7xl mx-auto flex flex-row`}>
+      <body className={`flex justify-center flex-row`}>
         <AuthProvider session={session!} >
           <NavBar />
           {children}
