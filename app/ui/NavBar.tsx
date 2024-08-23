@@ -75,35 +75,35 @@ export default function NavBar() {
     }    
 
     return (
-        <div className="pr-[57px] md:pr-[60px]">
-          <nav className="fixed z-50 md:h-full">
-            <Sidebar open={open} setOpen={setOpen}>
-                <SidebarBody className="justify-between gap-10">
-                    <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                        <Logo />
-                        <div className="mt-8 flex flex-col gap-2">
-                            {links.map((link, idx)=>(
-                                <SidebarLink key={idx} link={link} />
-                            ))}
+      <div className="pr-[57px] md:pr-[60px]">
+        <nav className="fixed z-50 md:h-full">
+          <Sidebar open={open} setOpen={setOpen}>
+              <SidebarBody className="justify-between gap-10">
+                  <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+                      <Logo />
+                      <div className="mt-8 flex flex-col gap-2">
+                          {links.map((link, idx)=>(
+                              <SidebarLink key={idx} link={link} />
+                          ))}
 
-                            {
-                              session.status === "authenticated"?
-                                <button onClick={logout}>
-                                  <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
-                                </button>
-                              :
-                                <button onClick={login}>
-                                  <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log in"}} />
-                                </button>
-                              }
-                        </div>
-                    </div>
-                    <div>
-                      {session.status == "authenticated" && <UserLink href={session.data.user?.name || "Profile"} label="Profile" icon={session.data.user?.image || ""} />}
-                    </div>
-                </SidebarBody>
-            </Sidebar>
-          </nav>
-        </div>
+                          {
+                            session.status === "authenticated"?
+                              <button onClick={logout}>
+                                <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
+                              </button>
+                            :
+                              <button onClick={login}>
+                                <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log in"}} />
+                              </button>
+                            }
+                      </div>
+                  </div>
+                  <div>
+                    {session.status == "authenticated" && <UserLink href={session.data.user?.name || "Profile"} label="Profile" icon={session.data.user?.image || ""} />}
+                  </div>
+              </SidebarBody>
+          </Sidebar>
+        </nav>
+      </div>
     );
   }

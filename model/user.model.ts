@@ -1,7 +1,7 @@
 import { db } from "./db";
 import { Generated } from "kysely";
 
-export interface UserTabel {
+export interface UserTable {
     id: Generated<number>;
     name:string;
     email: string;

@@ -18,7 +18,8 @@ export const authOptions: NextAuthOptions = {
       
       if(user.email&& user.name){
         const userExists = await getUserByEmail(user.email);
-        // console.log("account", account?.provider); give the provider for later intergation
+        // console.log("account", account?.provider); give the provider for later integration
+        
 
         if(!userExists){
           const image = user.image? user?.image : 'undefined';
@@ -26,6 +27,8 @@ export const authOptions: NextAuthOptions = {
 
           return res;
         }
+
+        return true;
       }
 
       return false;

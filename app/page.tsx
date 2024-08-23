@@ -1,8 +1,8 @@
 
-export default async function Home() {  
+export default async function Home() { 
 
   return (
-    <main>
+    <main className="pl-2 w-[1280px]">
 
     </main>
   );

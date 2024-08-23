@@ -1,15 +1,19 @@
 "use client";
-import { IconEdit, IconPlus, IconX } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { IconPlus, IconX } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-interface Thread {
+import EditableTag, { HtmlTag, InputType } from "./ui/EditableTag";
+import AddSectionModel from "./ui/AddSectionModel";
+import TagModel from "./ui/TabModel";
+
+export interface Thread {
     title: string;
     tags: string[];
     sections: Section[];
 }
 
-interface Section {
+export interface Section {
     id: string;
     type: HtmlTag;
     content: string;
@@ -19,17 +23,23 @@ export default function Page() {
     const router = useRouter();
     const [postData, setPostData] = useState<Thread>({
         title: "Title",
-        tags: ["C++", "Python"],
+        tags: ["python", "kivy", "test", "Rizz", "gyat", "bobby"],
         sections: [
-            {
-                id: "section1",
-                type: "p",
-                content: "awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo awduno wdna owundawond awond owd oawd aowndauwdnawo ",
-            }
+            {id:"section-0", content:"Test blog page", type:'h2'},
+            {id:"section-123", content:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat impedit ut quod magni? Cupiditate aperiam eum nulla itaque ut, laudantium commodi, necessitatibus porro consequatur natus quae, accusamus sequi. Id, officia.", type:'p'},
+            {id:"section-121", content:"let val = 'test'", type:'code'},
+            {id:"section-0t3", content:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat impedit ut quod magni? Cupiditate aperiam eum nulla itaque ut, laudantium commodi, necessitatibus porro consequatur natus quae, accusamus sequi. Id, officia.", type:'p'},
+            {id:"section-21", content:'let val = "test"\nfor (let index=0; index < 5; index++) {\n   console.log("hello world");\n}', type:'code'},
+            {id: "955.2407391366562", content:"", type:"image"}
         ],
     });
     const [showTagModel, setShowTagModel] = useState(false);
     const [showAddSectionModel, setShowAddSectionModel] = useState(false);
+
+    const [isImageCapped, setIsImageCapped] = useState(false);
+    const [isSectionsCapped, setIsSectionsCapped] = useState(false)
+    const [isTagsCapped, setIsTagsCapped] = useState(false);
+
 
     const handleInput = (e: any) => {
         setPostData((prev: Thread)=>{
@@ -81,27 +91,52 @@ export default function Page() {
         setShowAddSectionModel(!showAddSectionModel);
     }
 
-    const editSectionContent = (e: any) => {
+    const editSectionContent = async (e: any) => {
         e?.preventDefault();
         const id = e.target.name;
-        console.log(e.target.value);
 
-        const newSections = postData.sections.map(section =>{
+        const newSections = await Promise.all(postData.sections.map(async section =>{
             if(section.id === id){
-                return {...section, content: e.target.value}
+                if (section.type == "image") {
+                    try {
+                        const dataUrl = await getImageBlob(e);
+    
+                        return {
+                            ...section,
+                            content: dataUrl
+                        }                    
+                    } catch (error) {
+                        console.error("Error getting image data:", error);
+                        return section;
+                    }
+                }else {
+                    return {
+                        ...section,
+                        content: e.target.value
+                    }
+                }
             }
             return section;
-        });
-
+        }));
+                
         setPostData(prev=>({
            ...prev,
             sections: newSections,
         }))
     }
 
+    const RemoveEditableSection = (id: any) => {
+        const newData = postData.sections.filter(sec=> sec.id != id);
+        setPostData(prev=>({
+            ...prev,
+            sections: newData
+        }))
+    }
+
     const sectionMapper = (data: Section) => {
+                
         return (
-            <EditableTag key={data.id} htmlTag={data.type} inputType="text" name={data.id} value={data.content} func={editSectionContent}/>
+            <EditableTag key={data.id} id={data.id} htmlTag={data.type} inputType={data.type == "image"? "file": "text"} name={data.id} value={data.content} handleInput={editSectionContent} removeSection={RemoveEditableSection} />
         )
     }
 
@@ -114,16 +149,88 @@ export default function Page() {
             },
             body: JSON.stringify(postData),
         })
-
-        // TODO: handle res and redirect
+        
         if (res.ok) router.push(`/`);
     }
+
+
+    const getImageBlob = (e: React.ChangeEvent<HTMLInputElement>) => {
+        return new Promise<string>((resolve, reject) => {
+          const file = e.target.files && e.target.files[0];
+      
+          if (!file) {
+            reject("No file selected");
+            return;
+          }
+      
+          if (!file.type.startsWith('image/')) {
+            reject("Selected file is not an image");
+            return;
+          }
+      
+          const fileReader = new FileReader();
+      
+          fileReader.onload = function () {
+            if (fileReader.result && typeof fileReader.result === 'string') {
+              resolve(fileReader.result);
+            } else {
+              reject("FileReader did not return a string");
+            }
+          };
+      
+          fileReader.onerror = function () {
+            reject(`FileReader error: ${fileReader.error}`);
+          };
+      
+          fileReader.onabort = function () {
+            reject("File reading was aborted");
+          };
+      
+          try {
+            fileReader.readAsDataURL(file);
+          } catch (error) {
+            reject(`Error starting file read: ${error}`);
+          }
+        });
+    };
+
+    useEffect(()=>{
+        const imageCap = 5;
+        const sectionsCap = 12
+        const tagCap = 10;
+
+        let imageCounter = 0;
+        let sectionsCounter = 0;
+        let tagCounter = 0;
+
+
+        postData.sections.forEach(data=>{
+            switch (data.type) {
+                case "image":
+                    imageCounter++;
+                    break;
+                default:
+                    sectionsCounter++;
+                    break;
+            }
+        });
+        postData.tags.forEach(data=>{
+            tagCounter++
+        });
+
+        imageCounter >= imageCap ? setIsImageCapped(true): setIsImageCapped(false);
+
+        sectionsCounter >= sectionsCap ? setIsSectionsCapped(true): setIsSectionsCapped(false);
+
+        tagCounter >= tagCap ?setIsTagsCapped(true): setIsTagsCapped(false);
+        
+    },[postData.tags, postData.sections])    
 
     return (
         <main className="flex pl-2 w-[1280px] py-4">
             <form className="flex w-full flex-col" onSubmit={submit}>
                 {/* Title section */}
-                <EditableTag name="title" htmlTag={"h1"} inputType="text" value={postData?.title || ""} func={handleInput} />
+                <EditableTag id={"title"} name="title" htmlTag={"h1"} inputType="text" value={postData?.title || ""} handleInput={handleInput} removeSection={RemoveEditableSection}/>
                 {/* TAG section */}
                 <div className="flex items-center justify-between flex-col gap-1 w-full my-2 relative md:flex-row">
                     <div className="flex flex-wrap w-full gap-2 md:w-auto">
@@ -132,8 +239,8 @@ export default function Page() {
 
 
                     <div className="flex items-center">
-                        <button onClick={ToggleTagModel} className="flex p-[2px] relative">
-                            <div className="absolute z-0 inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg" />
+                        <button disabled={isTagsCapped} onClick={ToggleTagModel} className="flex p-[2px] relative">
+                            <div className={`absolute inset-0 bg-gradient-to-r  ${isTagsCapped ? "from-rose-400 to-[crimson]": "from-indigo-500 to-purple-500"} rounded-lg`} />
                             <div className={`${showTagModel && "bg-transparent"} px-8 py-1 mt-0 bg-black rounded-[6px]  relative group transition duration-200 text-white`}>
                                 {showTagModel ? <IconX />:<IconPlus />}
                             </div>
@@ -145,15 +252,16 @@ export default function Page() {
 
                 { postData.sections.length > 0 && postData.sections.map(sectionMapper) }
                 
-                <AddSectionModel showAddSectionModel={showAddSectionModel} toggleFunc={toggleAddSectionModel} addSection={handleAddSection} />
+                <AddSectionModel showAddSectionModel={showAddSectionModel} allowImages={isImageCapped} toggleFunc={toggleAddSectionModel} addSection={handleAddSection} />
                 {/* Add section */}
-                <div className="flex flex-col items-center justify-center gap-1 md:flex-row">
-                    <button onClick={toggleAddSectionModel} className="p-[3px] relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg" />
+                <div className="flex flex-col items-center justify-center gap-1 mt-4 md:flex-row">
+                    <button disabled={isSectionsCapped} onClick={toggleAddSectionModel} className="p-[3px] relative">
+                        <div className={`absolute inset-0 bg-gradient-to-r  ${isSectionsCapped ? "from-rose-400 to-[crimson]": "from-indigo-500 to-purple-500"} rounded-lg`} />
                         <div className="px-8 py-2  bg-black rounded-[6px]  relative group transition duration-200 text-white hover:bg-transparent">
                             Add Section
                         </div>
                     </button>
+
                     <button  className="p-[3px] relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg" />
                         <div className="px-8 py-2  bg-black rounded-[6px]  relative group transition duration-200 text-white hover:bg-transparent">
@@ -163,139 +271,5 @@ export default function Page() {
                 </div>
             </form>
         </main>
-    )
-}
-
-// Tag model
-const TagModel = ({showTagModel, func, addTag}: {showTagModel: boolean, func: (e: any | null) => void, addTag: (tag:string)=> void}) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    const handleAdd = (e: any) => {
-        e?.preventDefault();
-        if (inputRef.current) {
-            addTag(inputRef.current.value)
-            func(null);
-            inputRef.current.value = "";
-        }
-    }
-
-    return (
-        <div className={`${showTagModel ? "absolute":"hidden"} z-10 left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 w-[205px] h-[35px]`}>
-            <div className="relative px-1 py-2 h-full flex items-center justify-center">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg -z-10" />
-                <div className="flex py-2 px-2 rounded-[6px] relative group transition duration-200 " >
-                    <input ref={inputRef} className="flex flex-grow w-full rounded-l-[6px] px-2" />
-                    <button className="bg-black text-white px-2 rounded-r-[6px]" onClick={handleAdd}><IconPlus /></button>
-                </div>
-            </div>
-        </div>
-    )
-}
-
-// Add section Model
-const AddSectionModel = ({showAddSectionModel, toggleFunc, addSection}:{showAddSectionModel:boolean, toggleFunc: (e:any) => void, addSection:(data:Section) => void }) => {
-    const options: HtmlTag[] = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "code"];
-    const selectionRef = useRef<HTMLSelectElement>(null);
-
-    // const crateSectionModel
-    const createSection = (e: any) => {
-        e?.preventDefault();
-        if (selectionRef.current) {
-            const selectedOption = selectionRef.current.value;
-            const section: Section = {
-                id: `${Math.random() *999}`,
-                type: selectedOption as HtmlTag,
-                content: `${selectedOption} section selected`,
-            };
-            addSection(section);
-        }
-        toggleFunc(null);
-    };
-
-
-    return (
-        <div className={`${showAddSectionModel ? "absolute": "hidden"} z-20 top-1/2 -translate-x-1/2 left-1/2 -translate-y-1/2 w-[225px] p-[3px]`}>
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg" />
-            <div className="flex flex-col gap-2 p-2 px-4 pb-4 bg-black rounded-[6px] relative group transition duration-200 text-white">
-                <h2 className="text-2xl">Create Section</h2>
-                <select ref={selectionRef} className="flex flex-grow text-black rounded">
-                    {
-                        options.map((option, index) => (
-                            <option key={index} value={option}>{option}</option>
-                        ))
-                    }
-                </select>
-                <button onClick={createSection} className="bg-gradient-to-r from-indigo-500 to-purple-500 rounded">Add Section</button>
-                <button onClick={toggleFunc} className="absolute right-2"><IconX /></button>
-            </div>
-        </div>
-    )
-}
-
-//  Edite Tag
-type HtmlTag = "h1"| "h2"| "h3"| "h4"| "h5"| "h6"| "p"| "code";
-
-type InputType = "text";
-
-function EditableTag({htmlTag, inputType, name, value, func}: { htmlTag: HtmlTag, name: string, inputType: InputType, value: string, func: (e:any)=>void}) {
-    const [isEditable, setIsEditable] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-
-    const editeTag = () => {
-        setIsEditable(true);
-    }
-
-    useEffect(() => {
-        if (isEditable) {
-            inputRef.current?.focus();
-
-            const saveListner = (e: KeyboardEvent) => {
-                if (e.key === "Enter") {
-                    setIsEditable(false);
-                    if (inputRef.current) {
-                        inputRef.current?.blur();
-                        document.body.focus();
-                        inputRef.current?.removeEventListener("keypress", saveListner);
-                    }else if (textareaRef.current) {
-                        textareaRef.current?.blur();
-                        document.body.focus();
-                        textareaRef.current?.removeEventListener("keypress", saveListner);
-                    }
-                }
-            }
-
-            if (inputRef.current) {
-                inputRef.current?.addEventListener("keypress", saveListner)
-            }else if (textareaRef.current) {
-                textareaRef.current?.addEventListener("keypress", saveListner)
-            }
-        }
-    }, [isEditable]);
-
-    return (
-        <div className="w-full text-3xl my-0.5">
-            {
-                isEditable ?
-                    <>
-                        {htmlTag == "p" as HtmlTag && (<textarea ref={textareaRef} className="flex items-center justify-between w-full text-base p-1" name={name} value={value} onChange={func} />) }
-                        {htmlTag !== "p" as HtmlTag && (<input ref={inputRef} className="flex items-center justify-between w-full" type={inputType} name={name} value={value} onChange={func} />)}
-                        
-                    </>
-                :
-                    <div className="flex items-start justify-between w-full" onClick={editeTag}>
-                        {/* Switch block */}
-                        {htmlTag == "h1" && <h1 className="text-4xl">{value}</h1>}
-                        {htmlTag == "h2" && <h2 className="text-3xl">{value}</h2>}
-                        {htmlTag == "h3" && <h3 className="text-2xl">{value}</h3>}
-                        {htmlTag == "h4" && <h4 className="text-xl">{value}</h4>}
-                        {htmlTag == "h5" && <h5 className="text-lg">{value}</h5>}
-                        {htmlTag == "h6" && <h6 className="text-base">{value}</h6>}
-                        {htmlTag == "p" && <p className="text-base">{value}</p>}
-                        <span className=""><IconEdit /></span>
-                    </div>
-            }
-        </div>
     )
 }

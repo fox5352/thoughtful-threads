@@ -1,10 +1,15 @@
 import { Kysely, PostgresDialect } from "kysely";
-import { UserTabel } from "./user.model";
 import { Pool } from "pg";
 
+import { UserTable as UserTable } from "./user.model";
+import { PostTable, SectionTable, CommentTable } from "./posts.model";
+
 export interface Database {
-    users: UserTabel;
-};
+    users: UserTable;
+    sections: SectionTable;
+    posts: PostTable;
+    comments: CommentTable;
+}
 
 const dialect = new PostgresDialect({
     pool: new Pool({
