@@ -74,7 +74,7 @@ export const DesktopSidebar = ({ className, children, ...props }: React.Componen
   return (
     <>
       <motion.div
-        className={cn("h-full px-4 py-4 hidden text-[--fg-color] bg-[--ac-color] md:flex md:flex-col w-[300px] flex-shrink-0",className
+        className={cn("h-full px-4 py-4 hidden text-inherit bg-inherit md:flex md:flex-col w-[300px] flex-shrink-0",className
         )}
         animate={{
           width: animate ? (open ? "300px" : "60px") : "300px",
@@ -95,13 +95,13 @@ export const MobileSidebar = ({ className, children, ...props }: React.Component
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-[--ac-color] w-full"
+          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-inherit w-full"
         )}
         {...props}
       >
         <div className="flex justify-end z-20 w-full">
           <IconMenu2
-            className="text-[--fg-color]"
+            className="text-inherit"
             onClick={() => setOpen(!open)}
           />
         </div>
@@ -116,12 +116,12 @@ export const MobileSidebar = ({ className, children, ...props }: React.Component
                 ease: "easeInOut",
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-[--ac-color] p-10 z-[100] flex flex-col justify-between",
+                "fixed h-full w-full inset-0 bg-inherit p-10 z-[100] flex flex-col justify-between",
                 className
               )}
             >
               <div
-                className="absolute right-10 top-10 z-50 text-[--fg-color]"
+                className="absolute right-10 top-10 z-50 text-inherit"
                 onClick={() => setOpen(!open)}
               >
                 <IconX />
@@ -154,7 +154,7 @@ export const SidebarLink = ({ link, className, ...props }: { link: Links; classN
           display: animate ? (open ? "inline-block" : "none") : "inline-block",
           opacity: animate ? (open ? 1 : 0) : 1,
         }}
-        className="text-[--fg-color] text-lg group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+        className="text-inherit text-lg group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
       >
         {link.label}
       </motion.span>

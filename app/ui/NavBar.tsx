@@ -12,13 +12,13 @@ export const Logo = () => {
   return (
     <Link
       href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-[--fg-color] py-1 relative z-20"
+      className="font-normal flex space-x-2 items-center text-sm text-inherit py-1 relative z-20"
     >
-      <div className="h-5 w-6 bg-[--bg-color] rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <div className="h-5 w-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
       <motion.span
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="font-medium text-[--fg-color] whitespace-pre"
+        className="font-medium text-inherit whitespace-pre"
       >
         Thoughtfull Threads
       </motion.span>
@@ -38,11 +38,12 @@ const UserLink = ({href, label, icon}: {href: string, label: string, icon: strin
   )
 }
 
+
 export default function NavBar() {
     const links = [
       {
         label: "Feed",
-        href: "#",
+        href: "/feed",
         icon: (<IconBook />),
       },
       {
@@ -75,35 +76,41 @@ export default function NavBar() {
     }    
 
     return (
-      <div className="pr-[57px] md:pr-[60px]">
-        <nav className="fixed z-50 md:h-full">
-          <Sidebar open={open} setOpen={setOpen}>
-              <SidebarBody className="justify-between gap-10">
-                  <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                      <Logo />
-                      <div className="mt-8 flex flex-col gap-2">
-                          {links.map((link, idx)=>(
-                              <SidebarLink key={idx} link={link} />
-                          ))}
+      <div className="pr-[57px] md:pr-[70px]">
+        <div className="fixed z-50 md:h-full">
+          
+          <nav className="md:h-full bg-transparent text-white flex p-[5px] relative">
+            <div className="opacity-0 md:opacity-100 absolute -z-30 inset-0 bg-gradient-to-br from-indigo-500 to-purple-500" />
+            <div className="bg-black  rounded-md overflow-hidden">
+              <Sidebar open={open} setOpen={setOpen}>
+                  <SidebarBody className="justify-between gap-10">
+                      <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+                          <Logo />
+                          <div className="mt-8 flex flex-col gap-2">
+                              {links.map((link, idx)=>(
+                                  <SidebarLink key={idx} link={link} />
+                              ))}
 
-                          {
-                            session.status === "authenticated"?
-                              <button onClick={logout}>
-                                <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
-                              </button>
-                            :
-                              <button onClick={login}>
-                                <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log in"}} />
-                              </button>
-                            }
+                              {
+                                session.status === "authenticated"?
+                                  <button onClick={logout}>
+                                    <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log out"}} />
+                                  </button>
+                                :
+                                  <button onClick={login}>
+                                    <SidebarLink link={{href:"#", icon: (<IconDoorExit />), label: "log in"}} />
+                                  </button>
+                                }
+                          </div>
                       </div>
-                  </div>
-                  <div>
-                    {session.status == "authenticated" && <UserLink href={session.data.user?.name || "Profile"} label="Profile" icon={session.data.user?.image || ""} />}
-                  </div>
-              </SidebarBody>
-          </Sidebar>
-        </nav>
+                      <div>
+                        {session.status == "authenticated" && <UserLink href={session.data.user?.name || "Profile"} label="Profile" icon={session.data.user?.image || ""} />}
+                      </div>
+                  </SidebarBody>
+              </Sidebar>
+            </div>
+          </nav>
+        </div>
       </div>
     );
   }

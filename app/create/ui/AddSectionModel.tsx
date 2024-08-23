@@ -5,7 +5,7 @@ import { Section } from "../page";
 import { HtmlTag } from "./EditableTag";
 import { IconX } from "@tabler/icons-react";
 
-export default function AddSectionModel({showAddSectionModel, allowImages, toggleFunc, addSection}:{showAddSectionModel:boolean, allowImages: boolean, toggleFunc: (e:any) => void, addSection:(data:Section) => void }){
+export default function AddSectionModel({showAddSectionModel, counter, isImagesAllowed, toggleFunc, addSection}:{showAddSectionModel:boolean, counter:number, isImagesAllowed: boolean, toggleFunc: (e:any) => void, addSection:(data:Section) => void }){
     const options: HtmlTag[] = ["h1", "h2", "h3", "h4", "h5", "h6", "p", "code", "image"];
     const [selectedOption, setSelectedOption] = useState<string>('h1');
     const [language, setLanguage] = useState<string>("");
@@ -17,9 +17,9 @@ export default function AddSectionModel({showAddSectionModel, allowImages, toggl
     // const crateSectionModel
     const createSection = (e: any) => {
         e?.preventDefault();
-        
         const section: Section = {
             id: `${Math.random() *999}`,
+            order_num: counter,
             type: selectedOption as HtmlTag,
             content: `${selectedOption} section selected`,
         };
@@ -38,8 +38,8 @@ export default function AddSectionModel({showAddSectionModel, allowImages, toggl
                 <select value={selectedOption} onChange={handleChange} className="flex flex-grow text-black rounded">{
                     options.map((option, index) => (
                         <option key={index} value={option}>{option}</option>
-                    )).filter(option=>{
-                        if (!allowImages && option.props.value == "image") {
+                    )).filter(option=>{                        
+                        if (!isImagesAllowed && option.props.value == "image") {
                             return false;
                         }
                         return true

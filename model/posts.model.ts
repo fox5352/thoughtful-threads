@@ -5,15 +5,22 @@ import { db } from "./db";
 export interface PostTable {
     id: Generated<number>;
     title: string;
-    tags: string[],
+    tags: string[];
     user_id: number;
     user_name: string;
-    sections_ids: number[]
-    comments_ids: number[]
+}
+export interface PostDataType {
+    id: number;
+    title: string;
+    tags: string[];
+    user_id: number;
+    user_name: string;
 }
 
 export interface SectionTable {
     id: Generated<number>;
+    post_id: number,
+    order_num: number;
     type: string;
     content: string;
 }
@@ -21,10 +28,9 @@ export interface SectionTable {
 export interface CommentTable {
     id: Generated<number>;
     post_id: number;
-    content: string;
     user_id: number;
+    content: string;
 }
-
 
 export async function createPost(data: Thread, user_id: number, user_name: string): Promise<number | null> {
     try {
@@ -33,8 +39,6 @@ export async function createPost(data: Thread, user_id: number, user_name: strin
             tags: string[];
             user_id: number;
             user_name: string;
-            sections_ids: number[];
-            comments_ids: number[];
         }
     
         const postData: postType = {
@@ -42,45 +46,101 @@ export async function createPost(data: Thread, user_id: number, user_name: strin
             tags: data.tags,
             user_id: user_id,
             user_name: user_name,
-            sections_ids: [],
-            comments_ids: [],
         }
+                
+        const post = await db.insertInto("posts").values(postData).returning("id").executeTakeFirst();
     
-        const sections = data.sections
-        
-
-        sections.forEach(async sections => {
-            const sectionId = await createSection(sections);
-            if (sectionId) {
-                postData.sections_ids.push(sectionId);
+        if (post?.id) {
+            const sections = data.sections
+            
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i];
+                
+                await db.insertInto("sections").values({
+                    content: section.content,
+                    post_id: post.id,
+                    order_num: section.order_num,
+                    type: section.type
+                }).execute();
             }
-        })
-    
-        const post_id = await db.insertInto("posts").values(postData).returning("id").executeTakeFirst();
-    
-        if (!post_id?.id) {
-            return null;
+
+            return post.id;
         }
 
-        return post_id.id;
+
+        return null;
     } catch (error) {
         console.error(error);
-        return null;
+        
+    return null;
     }
 }
 
-
-export async function createSection(data: {type: string, content: string}): Promise<number | null> {
+export async function getShallowPosts(page:number, amount:number): Promise<PostDataType[] | null> {
     try {
-        const res = await db.insertInto("sections").values(data).returning("id").executeTakeFirst();
-
-        if (!res?.id) {
-            return null;
+        const res = await db.selectFrom("posts").offset(page * 10).limit(amount).selectAll().execute();
+        
+        if (res) {
+            return res.map(post=>{
+                return {
+                    id: post.id,
+                    title: post.title,
+                    tags: post.tags,
+                    user_id: post.user_id,
+                    user_name: post.user_name
+                } as PostDataType;
+            });
         }
 
-        return res.id;
+        return null
     } catch (error) {
-        console.error(error);
+        console.error("Error fetching posts :", error);
+        return null
+    }
+}
+
+export async function getPostById(id:number) {
+    try {
+        const data = await db.selectFrom("posts")
+            .leftJoin("sections", "posts.id", "sections.post_id")
+            .select([
+                'posts.id as post_id',
+                'posts.title as post_title',
+                'posts.tags as post_tags',
+                'posts.user_id as post_user_id',
+                'posts.user_name as post_user_name',
+                'sections.id as section_id',
+                'sections.order_num as section_order_num',
+                'sections.type as section_type',
+                'sections.content as section_content'
+            ])
+            .where('posts.id', '=', id)
+            .execute();
+
+            
+        if (data && data.length > 0) {
+            
+            const postData = {
+                id: data[0].post_id,
+                title: data[0].post_title,
+                tags: data[0].post_tags,
+                user_id: data[0].post_user_id,
+                user_name: data[0].post_user_name,
+                sections: data.map(section=>{
+                    return {
+                        order_num: section.section_order_num,
+                        type: section.section_type,
+                        content: section.section_content
+                    }
+                })
+            }
+
+            return postData;
+        }
+
         return null;
+    } catch (error) {
+        console.error("Error fetching posts :", error);
+        return null
     }
 }

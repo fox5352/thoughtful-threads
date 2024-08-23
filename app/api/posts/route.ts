@@ -1,14 +1,15 @@
-import { createPost } from "@/model/posts.model";
+import { createPost, getPostById, getShallowPosts } from "@/model/posts.model";
 import { getUserByEmail } from "@/model/user.model";
 import { getServerSession } from "next-auth";
-import { pages } from "next/dist/build/templates/app-page";
-import { useSearchParams } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
-// TODO: implement later
+import { sanitizeString } from "@/utils/cleaners";
+import { Thread } from "@/app/create/page";
+
+
 export async function GET(req: NextRequest) {
     const params = new URLSearchParams(req.url.split("?")[1]);
-    const page = params.get("page") || 1;
+    const page = params.get("page") || 0;
     const limit = params.get("limit") || 10;
 
     if (params.get("title")) {
@@ -19,51 +20,56 @@ export async function GET(req: NextRequest) {
         const userId = params.get("user");
     }else {
         // TODO: call paginated matches without any filters
+        const res = await getShallowPosts(Number(page), Number(limit));
+
+        if (res) {
+            return NextResponse.json({message: "success", body: JSON.stringify(res)});
+        }else {
+            return NextResponse.json({message: "not found"}, {status: 404});
+        }
     }
-    
-    return NextResponse.json({message: "not yet implemented"})
 }
 
 export async function POST(req: NextRequest) {
     const data = await req.json();
     const session = await getServerSession();
 
-    if (data.title?.length > 0 && data.tags?.length > 0 && data.sections?.length > 0) {
-        // TODO: clean data
+    if (session) {
+        const user = await getUserByEmail(session?.user.email);
 
-        const title = data.title;
-        const tags = data.tags.map((tag: string)=>tag);
-        const sections = data.sections.map((section:any)=> ({
-            type: section.type,
-            content: section.content
-        }))
+        if (user) {
+            if (data.title?.length > 0 && data.tags?.length > 0 && data.sections?.length > 0) {
+                const title = sanitizeString(data.title);
+                const tags = data.tags.map((tag:string)=>sanitizeString(tag));
+                const user_id = user.id;
+                const user_name = user.name;
+            
+                const sections = data.sections.map((section:any)=> ({
+                    type: sanitizeString(section.type),
+                    content: sanitizeString(section.content)
+                }));
+                
+                const postData = {
+                    title,
+                    tags,
+                    sections
+                } as Thread;
 
-        const postData = {
-            title,
-            tags,
-            sections,
-        };
-        
+                const res = await createPost(postData, user_id, user_name);
+                
+                if (res) {
 
-        if (!session) {
-            return NextResponse.json({message: "user not authenticated"}, {status: 401});
-        }
-    
-        const userData = await getUserByEmail(session.user.email);
-    
-        if (!userData) {
+                    return NextResponse.json({message: "Success", body: {id: res}}, {status: 201});
+                }else {
+                    return NextResponse.json({message: "Failed to create post"}, {status: 500});
+                }
+            }else {
+                return NextResponse.json({message: "missing required data"}, {status: 400});
+            }
+        }else {
             return NextResponse.json({message: "user not found"}, {status: 404});
         }
-
-        const id  = await createPost(postData, userData.id, userData.name);
-
-        if (id) {
-            return NextResponse.json({message: "Success", body: {id}}, {status: 404});
-        }
-        
-        return NextResponse.json({message: "Failed to create post"}, {status: 500});
+    }else {
+        return NextResponse.json({message: "user not authenticated"}, {status: 401});
     }
-
-    
-    return NextResponse.json({message: "malformed data"}, {status: 400});
 }

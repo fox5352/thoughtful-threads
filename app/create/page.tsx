@@ -1,6 +1,6 @@
 "use client";
 import { IconPlus, IconX } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import EditableTag, { HtmlTag, InputType } from "./ui/EditableTag";
@@ -15,23 +15,18 @@ export interface Thread {
 
 export interface Section {
     id: string;
+    order_num: number;
     type: HtmlTag;
     content: string;
 }
 
 export default function Page() {
     const router = useRouter();
+    const counterRef = useRef(0);
     const [postData, setPostData] = useState<Thread>({
         title: "Title",
-        tags: ["python", "kivy", "test", "Rizz", "gyat", "bobby"],
-        sections: [
-            {id:"section-0", content:"Test blog page", type:'h2'},
-            {id:"section-123", content:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat impedit ut quod magni? Cupiditate aperiam eum nulla itaque ut, laudantium commodi, necessitatibus porro consequatur natus quae, accusamus sequi. Id, officia.", type:'p'},
-            {id:"section-121", content:"let val = 'test'", type:'code'},
-            {id:"section-0t3", content:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat impedit ut quod magni? Cupiditate aperiam eum nulla itaque ut, laudantium commodi, necessitatibus porro consequatur natus quae, accusamus sequi. Id, officia.", type:'p'},
-            {id:"section-21", content:'let val = "test"\nfor (let index=0; index < 5; index++) {\n   console.log("hello world");\n}', type:'code'},
-            {id: "955.2407391366562", content:"", type:"image"}
-        ],
+        tags: [],
+        sections: [],
     });
     const [showTagModel, setShowTagModel] = useState(false);
     const [showAddSectionModel, setShowAddSectionModel] = useState(false);
@@ -149,10 +144,14 @@ export default function Page() {
             },
             body: JSON.stringify(postData),
         })
-        
-        if (res.ok) router.push(`/`);
-    }
 
+        
+        
+        if (res.ok) {
+            const data = await res.json();
+            router.push(`/posts/${data.id}`);
+        }
+    }
 
     const getImageBlob = (e: React.ChangeEvent<HTMLInputElement>) => {
         return new Promise<string>((resolve, reject) => {
@@ -205,8 +204,12 @@ export default function Page() {
 
 
         postData.sections.forEach(data=>{
+            counterRef.current += 1;
+
             switch (data.type) {
                 case "image":
+                    console.log("image");
+                    
                     imageCounter++;
                     break;
                 default:
@@ -224,7 +227,9 @@ export default function Page() {
 
         tagCounter >= tagCap ?setIsTagsCapped(true): setIsTagsCapped(false);
         
-    },[postData.tags, postData.sections])    
+        console.log("sections counter:", counterRef);
+        
+    },[postData.tags, postData.sections])
 
     return (
         <main className="flex pl-2 w-[1280px] py-4">
@@ -252,7 +257,7 @@ export default function Page() {
 
                 { postData.sections.length > 0 && postData.sections.map(sectionMapper) }
                 
-                <AddSectionModel showAddSectionModel={showAddSectionModel} allowImages={isImageCapped} toggleFunc={toggleAddSectionModel} addSection={handleAddSection} />
+                <AddSectionModel showAddSectionModel={showAddSectionModel} counter={counterRef.current} isImagesAllowed={!isImageCapped} toggleFunc={toggleAddSectionModel} addSection={handleAddSection} />
                 {/* Add section */}
                 <div className="flex flex-col items-center justify-center gap-1 mt-4 md:flex-row">
                     <button disabled={isSectionsCapped} onClick={toggleAddSectionModel} className="p-[3px] relative">

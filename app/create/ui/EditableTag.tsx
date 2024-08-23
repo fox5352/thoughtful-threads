@@ -9,12 +9,26 @@ export type HtmlTag = "h1"| "h2"| "h3"| "h4"| "h5"| "h6"| "p"| "code" | "image";
 
 export type InputType = "text" | "file";
 
-// TODO: set char limit
+const charCapMap = {
+    "h": 80,
+    "p": 420,
+    "c": 1260
+}
 
 export default function EditableTag({id, htmlTag, inputType, name, value, handleInput, removeSection}: {id:any, htmlTag: HtmlTag, name: string, inputType: InputType, value: string, handleInput: (e:any)=>void, removeSection: (id: any)=> void}) {
     const [isEditable, setIsEditable] = useState(false);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const [charsLeft, setCharsLeft] = useState<number>(0)
+    const inputRef = useRef<any>(null);
+
+    //@ts-ignore
+    const cap = charCapMap[htmlTag.split("")[0]];
+
+    const handleChange = (e:any) => {
+        if (e.target.value.length <= cap) {
+            handleInput(e)
+            setCharsLeft(cap - inputRef.current.value.length);
+        }
+    }
 
     const editTag = () => {
         setIsEditable(true);
@@ -26,9 +40,6 @@ export default function EditableTag({id, htmlTag, inputType, name, value, handle
                 if (inputRef.current) {
                     document.body.focus();
                     inputRef.current?.removeEventListener("keypress", saveListener);
-                }else if (textareaRef.current) {
-                    document.body.focus();
-                    textareaRef.current?.removeEventListener("keypress", saveListener);
                 }
                 setIsEditable(false);
             }
@@ -40,8 +51,6 @@ export default function EditableTag({id, htmlTag, inputType, name, value, handle
 
             if (inputRef.current) {
                 inputRef.current?.addEventListener("keypress", saveListener);
-            }else if (textareaRef.current) {
-                textareaRef.current?.addEventListener("keypress", saveListener);
             }
 
         }
@@ -52,13 +61,12 @@ export default function EditableTag({id, htmlTag, inputType, name, value, handle
 
         return () => {
             inputRef?.current?.removeEventListener("keypress", saveListener);
-            textareaRef?.current?.removeEventListener("keypress", saveListener);
         }
     }, [isEditable]);
 
     useEffect(()=>{
         const saveOnBlur = (e: MouseEvent) => {
-            if (inputRef.current && !inputRef.current.contains(e.target as Node) || textareaRef.current && !textareaRef.current.contains(e.target as Node)) {
+            if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
                 document.removeEventListener("click", saveOnBlur)
                 document.body.focus()
                 setIsEditable(false);
@@ -74,16 +82,26 @@ export default function EditableTag({id, htmlTag, inputType, name, value, handle
         };
     }, [isEditable]);
 
+    useEffect(()=>{
+        if (inputRef.current) {
+            setCharsLeft(cap - inputRef.current?.value.length);
+        }
+    })
+
     return (
-        <div className="w-full text-3xl my-2">
+        <div className="w-full text-3xl my-2 relative">
             {
                 isEditable ?
                     <>
-                        {htmlTag == "p" as HtmlTag && (<textarea ref={textareaRef} className="flex items-center justify-between w-full text-base p-1" name={name} value={value} onChange={handleInput} />) }
-                        {htmlTag == "code" as HtmlTag && (<textarea ref={textareaRef} className="flex items-center justify-between w-full text-base p-1" name={name} value={value} onChange={handleInput} />) }
-                        {htmlTag.split("").includes("h")  && (<input ref={inputRef} className="flex items-center justify-between w-full" type={inputType} name={name} value={value} onChange={handleInput} />)}
+                        <div className="absolute right-1/2 -top-7 text-xl text-green-700">
+                            <p>{charsLeft} remaining</p>
+                        </div>
+                        
+                        {htmlTag == "p" as HtmlTag && (<textarea ref={inputRef} className="flex items-center justify-between w-full text-base p-1 outline-none border-2 border-black rounded-sm" name={name} value={value} onChange={handleChange} />) }
+                        {htmlTag == "code" as HtmlTag && (<textarea ref={inputRef} className="flex items-center justify-between w-full text-base p-1 outline-none border-2 border-black rounded-sm" name={name} value={value} onChange={handleChange} />) }
+                        {htmlTag.split("").includes("h")  && (<input ref={inputRef} className="flex items-center justify-between w-full outline-none border-2 border-black rounded-sm" type={inputType} name={name} value={value} onChange={handleChange} />)}
 
-                        {htmlTag == "image" as HtmlTag && (<input ref={inputRef} className="flex items-center justify-between w-full" type={inputType} accept=".png" name={name} onChange={(e)=>{handleInput(e); setIsEditable(false)}} />)}
+                        {htmlTag == "image" as HtmlTag && (<input ref={inputRef} className="flex items-center justify-between w-full outline-none border-2 border-black rounded-sm" type={inputType} accept=".png" name={name} onChange={(e)=>{handleInput(e); setIsEditable(false)}} />)}
                     </>
                 :
                     <div className="flex items-star justify-between w-full">
@@ -103,7 +121,7 @@ export default function EditableTag({id, htmlTag, inputType, name, value, handle
                                     </pre>
                                 </div>
                             )}
-                            {htmlTag == "image" && <BlobImage className="flex w-full  aspect-auto mx-auto" alt="" blob={value} height={500} width={500} />}
+                            {htmlTag == "image" && <BlobImage className="flex w-full md:w-auto md:h-[550px] aspect-video mx-auto" alt="" blob={value} height={500} width={500} />}
                         </div>
                         
                         <div className="flex flex-col absolute right-0 md:relative pr-2">
