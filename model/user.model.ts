@@ -6,19 +6,32 @@ export interface UserTable {
     name:string;
     email: string;
     image: string;
+    interest: string[],
+    provider: string,
 };
+
+// CREATE TABLE IF NOT EXISTS users (
+//     id SERIAL PRIMARY KEY,
+//     name VARCHAR(150),
+//     email VARCHAR(155) UNIQUE,
+//     image VARCHAR(255),
+//     interest VARCHAR(80)[],
+//     provider VARCHAR(80)
+// )
 
 export interface User {
     id: number;
     name: string;
     email: string;
     image: string;
+    interest: string[],
+    provider: string,
 }
 
-export async function createUser(name:string, email:string, image:string): Promise<boolean> {
+export async function createUser(name:string, email:string, image:string, provider:string, interest: string[]): Promise<boolean> {
     try {
         try {
-            await db.insertInto("users").values({ name, email, image }).execute();
+            await db.insertInto("users").values({ name, email, image, interest, provider}).execute();
     
             return true;
         } catch (error) {
@@ -76,15 +89,37 @@ export async function getAllUsers(): Promise<User[] | null> {
     }
 }
 
-// TODO: UPDATE func
-// export async function updateUserById(id:number, update: unknown) {
-//     try {
-//         const user = db.u
-//     } catch (error) {
-//         console.log(error);
-//         return null
-//     }
-// }
+
+export async function updateUsersInterests(id:number, interests: string[]): Promise<boolean> {
+    try {
+        const res = await db.updateTable("users").set({ interest: interests }).where("id", "=", id).executeTakeFirst();
+
+        if (res) {
+            return true;
+        }
+
+        return false;
+    } catch (error) {
+        console.error("failed to update users interests :", error);
+        return false
+    }
+}
+
+export async function updateUsersName(id:number, userName:string): Promise<boolean> {
+    try {
+        const res = await db.updateTable("users").set({name: userName}).where("id", "=", id).executeTakeFirst();
+
+        if (res) {
+            return true;
+        }
+
+        return false;
+    } catch (error) {
+        console.error("failed to update users name :", error);
+        return false;
+    }
+}
+
 
 export async function deleteUserByID(id:number): Promise<User | null> {
     try {
