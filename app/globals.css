@@ -7,6 +7,11 @@
   --bg-color: gainsboro;
 
   --ac-color: cadetblue;
+
+  --indigo: rgb(99 102 241);
+  --purple: rgb(168 85 247);
+  --rose: rgb(251 113 133);
+  --crimson: rgb(220, 20, 60);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,4 +32,26 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* width */
+.scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Track */
+.scrollbar::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, var(--indigo), var(--purple));
+  border-radius: 2px;
+}
+
+/* Handle */
+.scrollbar::-webkit-scrollbar-thumb {
+  background: #000;
+  border-radius: 2px;
+}
+
+/* Handle on hover */
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--crimson);
 }
