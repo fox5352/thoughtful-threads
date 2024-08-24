@@ -81,21 +81,43 @@ export async function getShallowPosts(page:number, amount:number): Promise<PostD
         const res = await db.selectFrom("posts").offset(page * 10).limit(amount).selectAll().execute();
         
         if (res) {
-            return res.map(post=>{
-                return {
-                    id: post.id,
-                    title: post.title,
-                    tags: post.tags,
-                    user_id: post.user_id,
-                    user_name: post.user_name
-                } as PostDataType;
-            });
+            return res as PostDataType[];
         }
 
         return null
     } catch (error) {
         console.error("Error fetching posts :", error);
         return null
+    }
+}
+
+export async function getShallowPostsByTitle(title: string, page: number, amount: number): Promise<PostDataType[] | null> {
+    try {
+        const res = await db.selectFrom("posts").where("title", "like", title).offset(page * 10).limit(amount).selectAll().execute();
+
+        if (res) {
+            return res as PostDataType[];
+        }
+        
+        return null;
+    } catch (error) {
+        console.error("Error fetching posts :", error);
+        return null;
+    }
+}
+
+export async function getShallowPostsByUserName(userName: string, page: number, amount: number): Promise<PostDataType[] | null> {
+    try {
+        const res = await db.selectFrom("posts").where("user_name", "like", userName).offset(page * 10).limit(amount).selectAll().execute();
+
+        if (res) {
+            return res as PostDataType[];
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error fetching posts :", error);
+        return null;
     }
 }
 
