@@ -17,13 +17,11 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       
       if(user.email&& user.name){
-        const userExists = await getUserByEmail(user.email);
-        // console.log("account", account?.provider); give the provider for later integration
-        
+        const userExists = await getUserByEmail(user.email);        
 
         if(!userExists){
           const image = user.image? user?.image : 'undefined';
-          const res = await createUser(user.name, user.email,image );
+          const res = await createUser(user.name, user.email, image, account?.provider || "", []);
 
           return res;
         }

@@ -1,4 +1,4 @@
-import { createPost, getPostById, getShallowPosts } from "@/model/posts.model";
+import { createPost, getPostById, getShallowPosts, getShallowPostsByTitle, getShallowPostsByUserName } from "@/model/posts.model";
 import { getUserByEmail } from "@/model/user.model";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -10,20 +10,33 @@ import { Thread } from "@/app/create/page";
 export async function GET(req: NextRequest) {
     const params = new URLSearchParams(req.url.split("?")[1]);
     const page = params.get("page") || 0;
-    const limit = params.get("limit") || 10;
+    const amount = params.get("amount") || 10;
 
     if (params.get("title")) {
-        // TODO: call paginated matching titles
-        const title = params.get("title");
-    }else if (params.get("user")) {
-        // TODO: call paginated matches by user
-        const userId = params.get("user");
-    }else {
-        // TODO: call paginated matches without any filters
-        const res = await getShallowPosts(Number(page), Number(limit));
+        const title = sanitizeString(params.get("title")|| "*");
+
+        const res = await getShallowPostsByTitle(title, Number(page), Number(amount));
 
         if (res) {
-            return NextResponse.json({message: "success", body: JSON.stringify(res)});
+            return NextResponse.json({message: "success", body: res});
+        }else {
+            return NextResponse.json({message: "not found"}, {status: 404});
+        }
+    }else if (params.get("user")) {
+        const userName = sanitizeString(params.get("user") || "*");
+        
+        const res = await getShallowPostsByUserName(userName, Number(page), Number(amount));
+
+        if (res) {
+            return NextResponse.json({message: "success", body: res});
+        }else {
+            return NextResponse.json({message: "not found"}, {status: 404});
+        }
+    }else {
+        const res = await getShallowPosts(Number(page), Number(amount));
+
+        if (res) {
+            return NextResponse.json({message: "success", body: res});
         }else {
             return NextResponse.json({message: "not found"}, {status: 404});
         }

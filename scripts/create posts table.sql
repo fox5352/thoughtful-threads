@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS posts (
     title VARCHAR(80),
     tags VARCHAR(20)[],
     user_id INTEGER REFERENCES users(id),
-    user_name VARCHAR(100)
+    user_name VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
