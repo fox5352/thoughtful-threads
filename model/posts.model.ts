@@ -8,6 +8,7 @@ export interface PostTable {
     tags: string[];
     user_id: number;
     user_name: string;
+    created_at: Generated<Date>;
 }
 export interface PostDataType {
     id: number;
@@ -15,6 +16,7 @@ export interface PostDataType {
     tags: string[];
     user_id: number;
     user_name: string;
+    created_at: Date;
 }
 
 export interface SectionTable {
@@ -116,7 +118,7 @@ export async function getShallowPostsByUserName(userName: string, page: number, 
 
         return null;
     } catch (error) {
-        console.error("Error fetching posts :", error);
+        console.error("Error fetching post :", error);
         return null;
     }
 }
@@ -131,6 +133,7 @@ export async function getPostById(id:number) {
                 'posts.tags as post_tags',
                 'posts.user_id as post_user_id',
                 'posts.user_name as post_user_name',
+                'created_at as post_created_at',
                 'sections.id as section_id',
                 'sections.order_num as section_order_num',
                 'sections.type as section_type',
@@ -164,5 +167,41 @@ export async function getPostById(id:number) {
     } catch (error) {
         console.error("Error fetching posts :", error);
         return null
+    }
+}
+
+export async function getPostsByInterests(interests:string[], page:number, amount:number): Promise<PostDataType[] | null> {
+    try {
+        const res = await db
+        .selectFrom("posts")
+        .where("tags", "&&", interests)
+        .offset(page * 10)
+        .limit(amount)
+        .selectAll()
+        .execute();
+
+        if (res) {
+            return res as PostDataType[];
+        }
+
+        return null;
+    } catch (error) {
+        console.error("Error fetching posts by interests", error);
+        return null
+    }
+}
+
+export async function deletePostById(id: number): Promise<boolean> {
+    try {
+        const res = await db.deleteFrom("posts").where("id", "=", id).executeTakeFirst();
+
+        if (res) {
+            return true;
+        }
+
+        return false;
+    } catch (error) {
+        console.error("Error deleting post :", error);
+        return false;
     }
 }
