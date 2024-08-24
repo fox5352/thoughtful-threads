@@ -80,7 +80,13 @@ export async function createPost(data: Thread, user_id: number, user_name: strin
 
 export async function getShallowPosts(page:number, amount:number): Promise<PostDataType[] | null> {
     try {
-        const res = await db.selectFrom("posts").offset(page * 10).limit(amount).selectAll().execute();
+        const res = await db
+            .selectFrom("posts")
+            .orderBy("created_at asc")
+            .offset(page * 10)
+            .limit(amount)
+            .selectAll()
+            .execute();
         
         if (res) {
             return res as PostDataType[];
@@ -95,7 +101,14 @@ export async function getShallowPosts(page:number, amount:number): Promise<PostD
 
 export async function getShallowPostsByTitle(title: string, page: number, amount: number): Promise<PostDataType[] | null> {
     try {
-        const res = await db.selectFrom("posts").where("title", "like", title).offset(page * 10).limit(amount).selectAll().execute();
+        const res = await db
+            .selectFrom("posts")
+            .where("title", "like", title)
+            .orderBy("created_at asc")
+            .offset(page * 10)
+            .limit(amount)
+            .selectAll()
+            .execute();
 
         if (res) {
             return res as PostDataType[];
@@ -110,7 +123,14 @@ export async function getShallowPostsByTitle(title: string, page: number, amount
 
 export async function getShallowPostsByUserName(userName: string, page: number, amount: number): Promise<PostDataType[] | null> {
     try {
-        const res = await db.selectFrom("posts").where("user_name", "like", userName).offset(page * 10).limit(amount).selectAll().execute();
+        const res = await db
+            .selectFrom("posts")
+            .where("user_name", "like", userName)    
+            .orderBy("created_at asc")
+            .offset(page * 10)
+            .limit(amount)
+            .selectAll()
+            .execute();
 
         if (res) {
             return res as PostDataType[];
@@ -177,6 +197,7 @@ export async function getPostsByInterests(interests:string[], page:number, amoun
         .where("tags", "&&", interests)
         .offset(page * 10)
         .limit(amount)
+        .orderBy("created_at asc")
         .selectAll()
         .execute();
 
