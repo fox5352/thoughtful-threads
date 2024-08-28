@@ -17,13 +17,13 @@ export interface User {
     image: string;
     interest: string[],
     provider: string,
-}
+};
 
 export async function createUser(name:string, email:string, image:string, provider:string, interest: string[]): Promise<boolean> {
     try {
         try {
             await db.insertInto("users").values({ name, email, image, interest, provider}).execute();
-    
+            
             return true;
         } catch (error) {
             console.error("Error creating user:", error);
@@ -33,7 +33,7 @@ export async function createUser(name:string, email:string, image:string, provid
         console.log(error);
         return false;
     }
-}
+};
 
 export async function getUserByEmail(email:string): Promise<User | null> {
     try {
@@ -80,7 +80,6 @@ export async function getAllUsers(): Promise<User[] | null> {
     }
 }
 
-
 export async function updateUsersInterests(id:number, interests: string[]): Promise<boolean> {
     try {
         const res = await db.updateTable("users").set({ interest: interests }).where("id", "=", id).executeTakeFirst();
@@ -110,7 +109,6 @@ export async function updateUsersName(id:number, userName:string): Promise<boole
         return false;
     }
 }
-
 
 export async function deleteUserByID(id:number): Promise<User | null> {
     try {

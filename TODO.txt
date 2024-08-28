@@ -1,0 +1,15 @@
+TODO: add routes
+TODO: add posts GET POST and posts/id
+
+
+CREATE TABLE IF NOT EXISTS (
+	id SERIAL PRIMARY KEY,
+	title VARCHAR(80),
+	tags VARCHAR(20)[],
+	user_id: INTEGER REFERENCES users(id) ON DELETE CASCADE,
+	user_name: VARCHAR(155),
+
+	sections_ids: INT[],
+  
+    comments_ids: INT[],
+)

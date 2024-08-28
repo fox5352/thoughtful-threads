@@ -1,43 +1,12 @@
 "use client";
 import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/app/ui/Sidebar";
-import { IconBook, IconBookmarksFilled, IconSquarePlus, IconDeviceFloppy, IconDoorExit, IconDoorEnter, IconUserCircle } from "@tabler/icons-react";
+import { IconBook, IconBookmarksFilled, IconSquarePlus, IconDeviceFloppy, IconDoorExit, IconDoorEnter, IconUserCircle, IconSearch } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 
 import Link from "next/link";
 import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
-
-export const Logo = () => {
-  return (
-    <Link
-      href="/"
-      className="font-normal flex space-x-2 items-center text-sm text-inherit py-1 relative z-20"
-    >
-      <div className="h-5 w-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="font-medium text-inherit whitespace-pre"
-      >
-        Thoughtfull Threads
-      </motion.span>
-    </Link>
-  );
-};
-
-const UserLink = ({href, label, icon}: {href: string, label: string, icon: string}) => {
-  const profilePic  = icon === "undefined" ? <IconUserCircle />: <Image src={icon} className="h-7 w-7 flex-shrink-0 rounded-full" width={50} height={50} alt="Avatar"/>
-
-  return (
-    <SidebarLink link={{
-      href, 
-      label, 
-      icon: profilePic
-    }} />
-  )
-}
-
 
 export default function NavBar() {
     const links = [
@@ -45,6 +14,11 @@ export default function NavBar() {
         label: "Feed",
         href: "/feed",
         icon: (<IconBook />),
+      },
+      {
+        label: "Search",
+        href: "/posts",
+        icon: (<IconSearch />)
       },
       {
         label: "Create Post",
@@ -114,3 +88,34 @@ export default function NavBar() {
       </div>
     );
   }
+
+  
+export const Logo = () => {
+  return (
+    <Link
+      href="/"
+      className="font-normal flex space-x-2 items-center text-sm text-inherit py-1 relative z-20"
+    >
+      <div className="h-5 w-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0" />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="font-medium text-inherit whitespace-pre"
+      >
+        Thoughtfull Threads
+      </motion.span>
+    </Link>
+  );
+};
+
+const UserLink = ({href, label, icon}: {href: string, label: string, icon: string}) => {
+  const profilePic  = icon === "undefined" ? <IconUserCircle />: <Image src={icon} className="h-7 w-7 flex-shrink-0 rounded-full" width={50} height={50} alt="Avatar"/>
+
+  return (
+    <SidebarLink link={{
+      href, 
+      label, 
+      icon: profilePic
+    }} />
+  )
+}

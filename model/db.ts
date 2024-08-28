@@ -9,16 +9,15 @@ export interface Database {
     sections: SectionTable;
     posts: PostTable;
     comments: CommentTable;
-}
+};
 
 const dialect = new PostgresDialect({
     pool: new Pool({
         connectionString: process.env.DB_URL!,
-        // TODO: remove comment below when in prod 
         // ssl: true,
         max: 4
     })
-})
+});
 
 export const db = new Kysely<Database>({
     dialect

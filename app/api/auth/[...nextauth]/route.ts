@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user, account }) {
       
       if(user.email&& user.name){
-        const userExists = await getUserByEmail(user.email);        
+        const userExists = await getUserByEmail(user.email);
 
         if(!userExists){
           const image = user.image? user?.image : 'undefined';

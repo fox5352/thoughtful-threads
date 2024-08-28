@@ -9,8 +9,8 @@ import { Thread } from "@/app/create/page";
 
 export async function GET(req: NextRequest) {
     const params = new URLSearchParams(req.url.split("?")[1]);
-    const page = params.get("page") || 0;
-    const amount = params.get("amount") || 10;
+    const page = parseInt(params.get("page") || "0", 10);
+    const amount = parseInt(params.get("amount") || "10", 10);
 
     if (params.get("title")) {
         const title = sanitizeString(params.get("title")|| "*");

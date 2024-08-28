@@ -1,4 +1,4 @@
-import { Section, Thread } from "@/app/create/page";
+import { Thread } from "@/app/create/page";
 import { Generated } from "kysely";
 import { db } from "./db";
 
@@ -9,7 +9,8 @@ export interface PostTable {
     user_id: number;
     user_name: string;
     created_at: Generated<Date>;
-}
+};
+
 export interface PostDataType {
     id: number;
     title: string;
@@ -17,7 +18,7 @@ export interface PostDataType {
     user_id: number;
     user_name: string;
     created_at: Date;
-}
+};
 
 export interface SectionTable {
     id: Generated<number>;
@@ -25,14 +26,14 @@ export interface SectionTable {
     order_num: number;
     type: string;
     content: string;
-}
+};
 
 export interface CommentTable {
     id: Generated<number>;
     post_id: number;
     user_id: number;
     content: string;
-}
+};
 
 export async function createPost(data: Thread, user_id: number, user_name: string): Promise<number | null> {
     try {
@@ -41,14 +42,14 @@ export async function createPost(data: Thread, user_id: number, user_name: strin
             tags: string[];
             user_id: number;
             user_name: string;
-        }
+        };
     
         const postData: postType = {
             title: data.title,
             tags: data.tags,
             user_id: user_id,
             user_name: user_name,
-        }
+        };
                 
         const post = await db.insertInto("posts").values(postData).returning("id").executeTakeFirst();
     
@@ -190,27 +191,28 @@ export async function getPostById(id:number) {
     }
 }
 
-export async function getPostsByInterests(interests:string[], page:number, amount:number): Promise<PostDataType[] | null> {
-    try {
-        const res = await db
-        .selectFrom("posts")
-        .where("tags", "&&", interests)
-        .offset(page * 10)
-        .limit(amount)
-        .orderBy("created_at asc")
-        .selectAll()
-        .execute();
+// TODO:
+// export async function getShallowPostsByInterests(interests:string[], page:number, amount:number): Promise<PostDataType[] | null> {
+//     try {
+//         const res = await db
+//             .selectFrom("posts")
+//             // .where((eb) => eb.fn('array_overlap', ['tags', eb.val(interests)]))
+//             .offset(page * amount)
+//             .limit(amount)
+//             .orderBy("created_at", "desc")
+//             .selectAll()
+//             .execute();
 
-        if (res) {
-            return res as PostDataType[];
-        }
+//         if (res) {
+//             return res as PostDataType[];
+//         }
 
-        return null;
-    } catch (error) {
-        console.error("Error fetching posts by interests", error);
-        return null
-    }
-}
+//         return null;
+//     } catch (error) {
+//         console.error("Error fetching posts by interests", error);
+//         return null
+//     }
+// }
 
 export async function deletePostById(id: number): Promise<boolean> {
     try {
