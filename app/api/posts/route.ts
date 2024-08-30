@@ -1,9 +1,8 @@
-import { createPost, getPostById, getShallowPosts, getShallowPostsByTitle, getShallowPostsByUserName } from "@/model/posts.model";
+import { createPost, getShallowPosts, getShallowPostsByTitle, getShallowPostsByUserName } from "@/model/posts.model";
 import { getUserByEmail } from "@/model/user.model";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-import { sanitizeString } from "@/utils/cleaners";
 import { Thread } from "@/app/create/page";
 
 
@@ -13,7 +12,7 @@ export async function GET(req: NextRequest) {
     const amount = parseInt(params.get("amount") || "10", 10);
 
     if (params.get("title")) {
-        const title = sanitizeString(params.get("title")|| "*");
+        const title = params.get("title") || ""
 
         const res = await getShallowPostsByTitle(title, Number(page), Number(amount));
 
@@ -23,7 +22,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({message: "not found"}, {status: 404});
         }
     }else if (params.get("user")) {
-        const userName = sanitizeString(params.get("user") || "*");
+        const userName = params.get("user") || ""
         
         const res = await getShallowPostsByUserName(userName, Number(page), Number(amount));
 
@@ -52,14 +51,14 @@ export async function POST(req: NextRequest) {
 
         if (user) {
             if (data.title?.length > 0 && data.tags?.length > 0 && data.sections?.length > 0) {
-                const title = sanitizeString(data.title);
-                const tags = data.tags.map((tag:string)=>sanitizeString(tag));
+                const title = data.title;
+                const tags = data.tags.map((tag:string)=>tag);
                 const user_id = user.id;
                 const user_name = user.name;
             
-                const sections = data.sections.map((section:any)=> ({
-                    type: sanitizeString(section.type),
-                    content: sanitizeString(section.content)
+                const sections = data.sections.map((section:{type:string, content:string})=> ({
+                    type: section?.type,
+                    content: section?.content
                 }));
                 
                 const postData = {

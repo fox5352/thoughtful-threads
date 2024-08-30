@@ -1,5 +1,5 @@
 import NextAuth from "next-auth/next";
-import { NextAuthOptions, Session } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import Github from "next-auth/providers/github";
 import { createUser, getUserByEmail } from "@/model/user.model";
 
@@ -45,7 +45,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ token, session, user }) {
+    async session({ token, session }) {
       // Add the userId to the session
       if (token.userId && session.user) {
         session.user.id = `${token.userId}`;

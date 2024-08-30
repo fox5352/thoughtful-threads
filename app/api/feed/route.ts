@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { getUserById } from "@/model/user.model";
-import { getShallowPostsByInterests } from "@/model/posts.model";
+// import { getShallowPostsByInterests } from "@/model/posts.model";
 
 
 export async function GET(req:NextRequest) {
@@ -19,9 +19,10 @@ export async function GET(req:NextRequest) {
             const user = await getUserById(user_id);
 
             if (user) {
-                const interests = ["test", "python"];// user.interest;
+                TODO:
+                // const interests = ["test", "python"];// user.interest;
 
-                const res = await getShallowPostsByInterests(interests, page, amount)
+                const res = null;//TODO: await getShallowPostsByInterests(interests, page, amount)
 
                 if (res) {
                     return NextResponse.json({message: "success", body: res})
