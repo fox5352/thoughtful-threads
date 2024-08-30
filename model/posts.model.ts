@@ -11,7 +11,7 @@ export interface PostTable {
     created_at: Generated<Date>;
 };
 
-export interface PostDataType {
+export interface PostShallowDataType {
     id: number;
     title: string;
     tags: string[];
@@ -19,6 +19,20 @@ export interface PostDataType {
     user_name: string;
     created_at: Date;
 };
+
+export interface PostDataType {
+    id: number;
+    title: string;
+    tags: string[];
+    user_id: number;
+    user_name: string;
+    created_at: Date;
+    sections: [{
+            order_num: number,
+            type: string;
+            content: string;
+        }];
+}
 
 export interface SectionTable {
     id: Generated<number>;
@@ -35,6 +49,14 @@ export interface CommentTable {
     content: string;
 };
 
+
+/**
+ * creates a new entry of post and related sections
+ * @param {Thread} data the posts data
+ * @param {number} user_id the user id
+ * @param {string} user_name the user name
+ * @returns {Promise<number | null>} returns post id if successful
+ */
 export async function createPost(data: Thread, user_id: number, user_name: string): Promise<number | null> {
     try {
         interface postType {
@@ -79,7 +101,13 @@ export async function createPost(data: Thread, user_id: number, user_name: strin
     }
 }
 
-export async function getShallowPosts(page:number, amount:number): Promise<PostDataType[] | null> {
+/**
+ * Gets a shallow list of posts from database
+ * @param {number} page the current page 
+ * @param {number} amount the amount in a query
+ * @returns {Promise<PostShallowDataType[] | null>} a list of posts if successful
+ */
+export async function getShallowPosts(page:number, amount:number): Promise<PostShallowDataType[] | null> {
     try {
         const res = await db
             .selectFrom("posts")
@@ -90,7 +118,7 @@ export async function getShallowPosts(page:number, amount:number): Promise<PostD
             .execute();
         
         if (res) {
-            return res as PostDataType[];
+            return res as PostShallowDataType[];
         }
 
         return null
@@ -100,7 +128,14 @@ export async function getShallowPosts(page:number, amount:number): Promise<PostD
     }
 }
 
-export async function getShallowPostsByTitle(title: string, page: number, amount: number): Promise<PostDataType[] | null> {
+/**
+ * Gets a shallow list of posts that contains the givin phrase
+ * @param {string} title title of the post to search by
+ * @param {number} page current page
+ * @param {number} amount amount of posts to get
+ * @returns {Promise<PostShallowDataType[] | null>} returns a shallow list of posts if successful
+ */
+export async function getShallowPostsByTitle(title: string, page: number, amount: number): Promise<PostShallowDataType[] | null> {
     try {
         const res = await db
             .selectFrom("posts")
@@ -112,7 +147,7 @@ export async function getShallowPostsByTitle(title: string, page: number, amount
             .execute();
 
         if (res) {
-            return res as PostDataType[];
+            return res as PostShallowDataType[];
         }
         
         return null;
@@ -122,7 +157,14 @@ export async function getShallowPostsByTitle(title: string, page: number, amount
     }
 }
 
-export async function getShallowPostsByUserName(userName: string, page: number, amount: number): Promise<PostDataType[] | null> {
+/**
+ * 
+ * @param {string} userName user name of the post to search by
+ * @param {number} page current page
+ * @param {number} amount amount of posts to get
+ * @returns {Promise<PostShallowDataType[] | null>} return a shallow list of posts if successful
+ */
+export async function getShallowPostsByUserName(userName: string, page: number, amount: number): Promise<PostShallowDataType[] | null> {
     try {
         const res = await db
             .selectFrom("posts")
@@ -134,7 +176,7 @@ export async function getShallowPostsByUserName(userName: string, page: number, 
             .execute();
 
         if (res) {
-            return res as PostDataType[];
+            return res as PostShallowDataType[];
         }
 
         return null;
@@ -144,7 +186,12 @@ export async function getShallowPostsByUserName(userName: string, page: number, 
     }
 }
 
-export async function getPostById(id:number) {
+/**
+ * gets a post by the id number
+ * @param {number} id the id of the post
+ * @returns {Promise<PostShallowDataType | null>} returns a post if successful
+ */
+export async function getPostById(id:number): Promise<PostDataType | null> {
     try {
         const data = await db.selectFrom("posts")
             .leftJoin("sections", "posts.id", "sections.post_id")
@@ -179,7 +226,7 @@ export async function getPostById(id:number) {
                         content: section.section_content
                     }
                 })
-            }
+            } as PostDataType;
 
             return postData;
         }
@@ -192,7 +239,7 @@ export async function getPostById(id:number) {
 }
 
 // TODO:
-// export async function getShallowPostsByInterests(interests:string[], page:number, amount:number): Promise<PostDataType[] | null> {
+// export async function getShallowPostsByInterests(interests:string[], page:number, amount:number): Promise<PostShallowDataType[] | null> {
 //     try {
 //         const res = await db
 //             .selectFrom("posts")
@@ -204,7 +251,7 @@ export async function getPostById(id:number) {
 //             .execute();
 
 //         if (res) {
-//             return res as PostDataType[];
+//             return res as PostShallowDataType[];
 //         }
 
 //         return null;
@@ -214,6 +261,12 @@ export async function getPostById(id:number) {
 //     }
 // }
 
+
+/**
+ * deletes a post by Id
+ * @param id Id of the post
+ * @returns {Promise<boolean>} returns a boolean value indicating whether the post was deleted
+ */
 export async function deletePostById(id: number): Promise<boolean> {
     try {
         const res = await db.deleteFrom("posts").where("id", "=", id).executeTakeFirst();

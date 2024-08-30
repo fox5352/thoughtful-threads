@@ -19,6 +19,15 @@ export interface User {
     provider: string,
 };
 
+/**
+ * Creates a new User in the database
+ * @param {string} name user name
+ * @param {string} email user email (has to be unique)
+ * @param {string} image url to image
+ * @param {string} provider provider used
+ * @param {string[]} interest array of interest
+ * @returns {Promise<boolean>} returns true if successful
+ */
 export async function createUser(name:string, email:string, image:string, provider:string, interest: string[]): Promise<boolean> {
     try {
         try {
@@ -35,6 +44,11 @@ export async function createUser(name:string, email:string, image:string, provid
     }
 };
 
+/**
+ * Gets the users data by email
+ * @param email users email address
+ * @returns {Promise<User | null>} User object if successful
+ */
 export async function getUserByEmail(email:string): Promise<User | null> {
     try {
         const user = await db.selectFrom("users").where("email", "=", email).selectAll().executeTakeFirst();
@@ -50,7 +64,12 @@ export async function getUserByEmail(email:string): Promise<User | null> {
     }
 }
 
-export async function getUserById(id:number) {
+/**
+ * Gets the user by id
+ * @param id user account id
+ * @returns {Promise<User | null>} User object if successful
+ */
+export async function getUserById(id:number): Promise<User | null> {
     try {
         const user = await db.selectFrom("users").where("id", "=", id).selectAll().executeTakeFirst();
     
@@ -65,6 +84,10 @@ export async function getUserById(id:number) {
     }
 }
 
+/**
+ * Gets all users from the database
+ * @returns {Promise<User[]| null>} Gets all users from the database and returns them if successful
+ */
 export async function getAllUsers(): Promise<User[] | null> {
     try {
         const users = db.selectFrom("users").selectAll().execute();
@@ -80,6 +103,12 @@ export async function getAllUsers(): Promise<User[] | null> {
     }
 }
 
+/**
+ * Gets user By id and updates interests by with the provided interest
+ * @param {number} id Users Id
+ * @param {string[]} interests Array of interest
+ * @returns {Promise<Boolean>} returns Promise boolean value
+ */
 export async function updateUsersInterests(id:number, interests: string[]): Promise<boolean> {
     try {
         const res = await db.updateTable("users").set({ interest: interests }).where("id", "=", id).executeTakeFirst();
@@ -95,6 +124,13 @@ export async function updateUsersInterests(id:number, interests: string[]): Prom
     }
 }
 
+
+/**
+ * Gets user by id and updates name with provided userName
+ * @param {number} id User Id
+ * @param {string} userName users name
+ * @returns {Promise<boolean>} Returns Promise boolean
+ */
 export async function updateUsersName(id:number, userName:string): Promise<boolean> {
     try {
         const res = await db.updateTable("users").set({name: userName}).where("id", "=", id).executeTakeFirst();
@@ -110,6 +146,12 @@ export async function updateUsersName(id:number, userName:string): Promise<boole
     }
 }
 
+
+/**
+ * Delete a user by id 
+ * @param {number} id User id
+ * @returns {Promise<boolean>} return true if successful
+ */
 export async function deleteUserByID(id:number): Promise<User | null> {
     try {
         const user = await db.deleteFrom("users").where("id", "=", id).returningAll().executeTakeFirst();

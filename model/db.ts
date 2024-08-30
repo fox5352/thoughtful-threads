@@ -19,6 +19,11 @@ const dialect = new PostgresDialect({
     })
 });
 
+
+/**
+ * returns a database connections
+ * @returns {Kysely<Database>} db object 
+ */
 export const db = new Kysely<Database>({
     dialect
 });
