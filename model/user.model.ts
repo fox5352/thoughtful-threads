@@ -8,6 +8,7 @@ export interface UserTable {
     image: string;
     interest: string[],
     provider: string,
+    role: string
 };
 
 export interface User {
@@ -17,6 +18,7 @@ export interface User {
     image: string;
     interest: string[],
     provider: string,
+    role: string
 };
 
 /**
@@ -31,7 +33,7 @@ export interface User {
 export async function createUser(name:string, email:string, image:string, provider:string, interest: string[]): Promise<boolean> {
     try {
         try {
-            await db.insertInto("users").values({ name, email, image, interest, provider}).execute();
+            await db.insertInto("users").values({ name, email, image, interest, provider, role:"user"}).execute();
             
             return true;
         } catch (error) {
@@ -146,11 +148,31 @@ export async function updateUsersName(id:number, userName:string): Promise<boole
     }
 }
 
+/**
+ * Updates User Data
+ * @param {number} id User Id
+ * @param {string} role User role
+ * @return {Promise<boolean>} returns true if successful
+ */
+export async function updateUserRole(id:number, role:string): Promise<boolean> {
+    try {
+        const res = await db.updateTable("users").set({role: role}).where("id", "==", id).executeTakeFirst();
+
+        if (res) {
+            return true
+        }
+
+        return false
+    } catch (error) {
+        console.error("failed to update user role :", error);
+        return false
+    }
+}
 
 /**
  * Delete a user by id 
  * @param {number} id User id
- * @returns {Promise<boolean>} return true if successful
+ * @returns {Promise<User | null>} return true if successful
  */
 export async function deleteUserByID(id:number): Promise<User | null> {
     try {
