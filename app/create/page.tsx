@@ -1,9 +1,11 @@
 "use client";
+import React, { FormEvent } from "react";
+
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import EditableTag, { HtmlTag, InputType } from "./ui/EditableTag";
+import EditableTag, { HtmlTag } from "./ui/EditableTag";
 import AddSectionModel from "./ui/AddSectionModel";
 import TagModel from "./ui/TabModel";
 
@@ -76,7 +78,7 @@ export default function Page() {
             </button>)
     }
 
-    const ToggleTagModel = (e: any|null) => {
+    const ToggleTagModel = (e: any| null) => {
         e?.preventDefault();
         setShowTagModel(!showTagModel);
     }
@@ -120,7 +122,7 @@ export default function Page() {
         }))
     }
 
-    const RemoveEditableSection = (id: any) => {
+    const RemoveEditableSection = (id: string) => {
         const newData = postData.sections.filter(sec=> sec.id != id);
         setPostData(prev=>({
             ...prev,
@@ -135,7 +137,7 @@ export default function Page() {
         )
     }
 
-    const submit = async (e: any) => {
+    const submit = async (e: FormEvent) => {
         e?.preventDefault();
         const res = await fetch("/api/posts", {
             method: "POST",
@@ -143,13 +145,11 @@ export default function Page() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify(postData),
-        })
-
-        
+        })        
         
         if (res.ok) {
             const data = await res.json();
-            router.push(`/posts/${data.id}`);
+            router.push(`/posts/${data.body.id}`);
         }
     }
 

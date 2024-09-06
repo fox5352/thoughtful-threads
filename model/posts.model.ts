@@ -1,5 +1,5 @@
 import { Thread } from "@/app/create/page";
-import { Generated } from "kysely";
+import { Generated, sql } from "kysely";
 import { db } from "./db";
 
 export interface PostTable {

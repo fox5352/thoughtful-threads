@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import React from "react";
 
 import "@/app/globals.css";
 import "highlight.js/styles/dark.min.css";
@@ -18,7 +19,7 @@ export default async function RootLayout({children}: Readonly<{children: React.R
 
   return (
     <html lang="en">
-      <body className={`flex justify-center flex-row`}>
+      <body className={`flex justify-center flex-col md:flex-row`}>
         <AuthProvider session={session!} >
           <NavBar />
           {children}

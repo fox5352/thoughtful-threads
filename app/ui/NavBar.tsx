@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/app/ui/Sidebar";
-import { IconBook, IconBookmarksFilled, IconSquarePlus, IconDeviceFloppy, IconDoorExit, IconDoorEnter, IconUserCircle, IconSearch } from "@tabler/icons-react";
+import { IconBook, IconBookmarksFilled, IconSquarePlus, IconDeviceFloppy, IconDoorExit, IconUserCircle, IconSearch } from "@tabler/icons-react";
 import { motion } from "framer-motion";
 
 import Link from "next/link";
@@ -50,7 +50,7 @@ export default function NavBar() {
     }    
 
     return (
-      <div className="pr-[57px] md:pr-[70px]">
+      <div className="pb-[50px] md:pr-[70px]">
         <div className="fixed z-50 md:h-full">
           
           <nav className="md:h-full bg-transparent text-white flex p-[5px] relative">

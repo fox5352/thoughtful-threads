@@ -12,6 +12,9 @@
   --purple: rgb(168 85 247);
   --rose: rgb(251 113 133);
   --crimson: rgb(220, 20, 60);
+
+  --ac-one: rgb(99 102 241);
+  --ac-two: rgb(168 85 247);
 }
 
 @media (prefers-color-scheme: dark) {
